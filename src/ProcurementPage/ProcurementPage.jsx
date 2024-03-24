@@ -9,12 +9,13 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import { Button, message } from "antd";
 import Modal from "@mui/material/Modal";
 import { TextField } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
-import { message } from "antd";
+import useLogout from "../components/logout/Logout";
+import { LogoutOutlined  } from "@ant-design/icons";
 
 const style = {
   position: "absolute",
@@ -63,14 +64,23 @@ export default function ProcurementPage() {
     setPage(0);
   };
 
+  const getCurrentDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const [quantityBought, setQuantityBought] = useState("");
   const [costPrice, setCostPrice] = useState("");
 
   const [orders, setOrders] = useState([]);
   // eslint-disable-next-line
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(getCurrentDate());
   const [loading, setLoading] = useState(false);
+  const { logout, isLoggingOut } = useLogout();
 
   const handleUpdateOrder = async () => {
     setLoading(true);
@@ -156,6 +166,10 @@ export default function ProcurementPage() {
   console.log(filteredOrders);
 
   const storeduserName = localStorage.getItem("username");
+  const handleLogout = () => {
+    const storeduserName = localStorage.getItem("username");
+    logout(storeduserName);
+  };
 
   return (
     <div
@@ -164,15 +178,20 @@ export default function ProcurementPage() {
         margin: "0 auto",
       }}
     >
-      <div className="orders">
+      <div className="orders pt-5">
         <h1>Welcome {storeduserName}</h1>
-        <h1
-          style={{
-            fontSize: "30px",
-          }}
-        >
-          Your Orders
-        </h1>
+        <div className="flex justify-between">
+          <h1
+            style={{
+              fontSize: "30px",
+            }}
+          >
+            Your Orders
+          </h1>
+          <Button onClick={handleLogout} icon={<LogoutOutlined />}>
+            Logout
+          </Button>
+        </div>
       </div>
       <div className="flex gap-5 flex-wrap border items-end p-4 min-h-[90px] bg-white">
         <div className="flex flex-wrap items-end gap-3">
@@ -216,7 +235,7 @@ export default function ProcurementPage() {
             </TableHead>
             {filteredOrders?.length < 1 ? (
               <div className="text-[50px] border w-[100%] h-[100%] my-[20%] mx-[40%] flex justify-center items-center font-bold">
-                NO DATA TODAY!!!
+                NO DATA TODAY 😑😐😐!!!
               </div>
             ) : (
               <TableBody>
