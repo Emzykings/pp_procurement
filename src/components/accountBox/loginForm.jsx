@@ -20,6 +20,7 @@ export function LoginForm(props) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   const handleSignIn = async () => {
     setLoading(true);
     try {
@@ -36,18 +37,23 @@ export function LoginForm(props) {
           }),
         }
       );
-      const data = await response.json();
-      console.log(data); // Log the response
-     
-      localStorage.setItem("userData", JSON.stringify(data));
-      localStorage.setItem("username", username);
-      if (data?.is_admin) {
-        navigate("/admin");
-        
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        localStorage.setItem("userData", JSON.stringify(data));
+        localStorage.setItem("username", username);
+        if (data?.is_admin) {
+          navigate("/admin");
+        } else {
+          navigate("/procurement3yiukjeg5-47/5408456-856");
+        }
+        message.success("login successful");
       } else {
-        navigate("/procurement3yiukjeg5-47/5408456-856");
+        const errorData = await response.json();
+        console.error("Error:", errorData);
+        message.error(errorData.error);
       }
-      message.success("login successful")
     } catch (error) {
       console.error("Error:", error);
     }
@@ -73,16 +79,13 @@ export function LoginForm(props) {
       <Marginer direction="vertical" margin={10} />
       <MutedLink href="#">Forget your password?</MutedLink>
       <Marginer direction="vertical" margin="1.6em" />
-      {/* <Link style={{}} to={"/procurement3yiukjeg5-47/5408456-856"}>
-        <SubmitButton type="submit">Sign in</SubmitButton>
-      </Link> */}
       <SubmitButton type="submit" onClick={handleSignIn}>
         {loading ? "Loading..." : "Sign in"}
       </SubmitButton>
 
       <Marginer direction="vertical" margin="5px" />
       <LineText>
-        Don't have an accoun?{" "}
+        Don't have an account?{" "}
         <BoldLink onClick={switchToSignup} href="#">
           Sign up
         </BoldLink>

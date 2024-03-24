@@ -11,10 +11,6 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import { TextField } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -46,39 +42,8 @@ const columns = [
   { id: "action", label: "Action", minWidth: 170, align: "right" },
 ];
 
-// const columns = [
-//   { id: "name", label: "Name", minWidth: 170 },
-//   { id: "code", label: "ISO\u00a0Code", minWidth: 100 },
-//   {
-//     id: "population",
-//     label: "Population",
-//     minWidth: 170,
-//     align: "right",
-//     format: (value) => value.toLocaleString("en-US"),
-//   },
-//   {
-//     id: "size",
-//     label: "Size\u00a0(km\u00b2)",
-//     minWidth: 170,
-//     align: "right",
-//     format: (value) => value.toLocaleString("en-US"),
-//   },
-//   {
-//     id: "density",
-//     label: "Density",
-//     minWidth: 170,
-//     align: "right",
-//     format: (value) => value.toFixed(2),
-//   },
-// ];
-
 export default function ProcurementPage() {
-  const [age, setAge] = React.useState("");
   const [modalId, setModalId] = React.useState();
-  const storeduserName = localStorage.getItem("username");
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
   const [open, setOpen] = React.useState(false);
   const handleOpen = (id) => {
     console.log(id);
@@ -102,6 +67,7 @@ export default function ProcurementPage() {
   const [costPrice, setCostPrice] = useState("");
 
   const [orders, setOrders] = useState([]);
+  // eslint-disable-next-line
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [loading, setLoading] = useState(false);
@@ -189,6 +155,8 @@ export default function ProcurementPage() {
 
   console.log(filteredOrders);
 
+  const storeduserName = localStorage.getItem("username");
+
   return (
     <div
       style={{
@@ -197,7 +165,7 @@ export default function ProcurementPage() {
       }}
     >
       <div className="orders">
-        <h1>welcome {storeduserName}</h1>
+        <h1>Welcome {storeduserName}</h1>
         <h1
           style={{
             fontSize: "30px",
