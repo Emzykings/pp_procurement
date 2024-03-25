@@ -15,7 +15,7 @@ import { TextField } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
 import useLogout from "../components/logout/Logout";
-import { LogoutOutlined  } from "@ant-design/icons";
+import { LogoutOutlined } from "@ant-design/icons";
 
 const style = {
   position: "absolute",
@@ -39,8 +39,8 @@ const columns = [
     align: "right",
   },
   { id: "created_at", label: "Date", minWidth: 100, align: "center" },
-
   { id: "action", label: "Action", minWidth: 170, align: "right" },
+  { id: "uploaded", label: "Updated", minWidth: 100, align: "center" },
 ];
 
 export default function ProcurementPage() {
@@ -76,13 +76,16 @@ export default function ProcurementPage() {
   const [costPrice, setCostPrice] = useState("");
 
   const [orders, setOrders] = useState([]);
-  // eslint-disable-next-line
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(getCurrentDate());
   const [loading, setLoading] = useState(false);
   const { logout, isLoggingOut } = useLogout();
 
   const handleUpdateOrder = async () => {
+    if (!quantityBought || !costPrice) {
+      message.error("Please fill in required fields");
+      return;
+    }
     setLoading(true);
     try {
       const storedData = localStorage.getItem("userData");
@@ -106,14 +109,24 @@ export default function ProcurementPage() {
         }
       );
 
+      if (!response.ok) {
+        throw new Error("Failed to update order");
+      }
+
+      const updatedOrders = orders.map((order) => {
+        if (order.id === modalId) {
+          return { ...order, uploaded: true };
+        }
+        return order;
+      });
+
+      setOrders(updatedOrders);
       setCostPrice("");
       setQuantityBought("");
       setOpen(false);
       message.success("Updated successfully");
 
-      if (!response.ok) {
-        throw new Error("Failed to update order");
-      }
+      localStorage.setItem("orders", JSON.stringify(updatedOrders));
     } catch (error) {
       message.error(error);
     }
@@ -123,28 +136,36 @@ export default function ProcurementPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const storedData = localStorage.getItem("userData");
-        if (!storedData) {
-          throw new Error("User data not found in localStorage");
-        }
-        const { token } = JSON.parse(storedData);
-
-        const response = await fetch(
-          "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/my-orders/",
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
+        const storedOrders = localStorage.getItem("orders");
+        if (storedOrders) {
+          setOrders(JSON.parse(storedOrders));
+          setOpen(false);
+        } else {
+          const storedData = localStorage.getItem("userData");
+          if (!storedData) {
+            throw new Error("User data not found in localStorage");
           }
-        );
+          const { token } = JSON.parse(storedData);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch orders");
+          const response = await fetch(
+            "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/my-orders/",
+            {
+              headers: {
+                Authorization: `Token ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch orders");
+          }
+
+          const data = await response.json();
+          setOrders(data);
+          setOpen(false);
+
+          localStorage.setItem("orders", JSON.stringify(data));
         }
-
-        const data = await response.json();
-        setOrders(data);
-        setOpen(false);
       } catch (error) {
         message.error(error);
       }
@@ -169,6 +190,19 @@ export default function ProcurementPage() {
   const handleLogout = () => {
     const storeduserName = localStorage.getItem("username");
     logout(storeduserName);
+  };
+
+  const determineBatch = (createdAt) => {
+    const hours = parseInt(createdAt.split(':')[0]);
+    if (hours >= 17 && hours < 22) {
+      return 'Batch A';
+    } else if (hours >= 0 && hours < 6) {
+      return 'Batch B';
+    } else if (hours >= 7 && hours < 14) {
+      return 'Batch C';
+    } else {
+      return 'Unknown Batch';
+    }
   };
 
   return (
@@ -235,7 +269,7 @@ export default function ProcurementPage() {
             </TableHead>
             {filteredOrders?.length < 1 ? (
               <div className="text-[50px] border w-[100%] h-[100%] my-[20%] mx-[40%] flex justify-center items-center font-bold">
-                NO DATA TODAY 😑😐😐!!!
+                NO DATA TODAY 😑!!!
               </div>
             ) : (
               <TableBody>
@@ -250,6 +284,13 @@ export default function ProcurementPage() {
                               <Button onClick={() => handleOpen(row.id)}>
                                 <MoreVertIcon />
                               </Button>
+                            ) : column.id === "uploaded" ? (
+                              <span>{row.uploaded ? "✔️" : "❌"}</span>
+                            ) : column.id === "created_at" ? (
+                              <span>
+                                {row.created_at}{" "}
+                                {determineBatch(row.created_at.split(" ")[1])}
+                              </span>
                             ) : (
                               row[column.id]
                             );
