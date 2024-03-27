@@ -24,6 +24,7 @@ const useLogout = () => {
 
       if (response.ok) {
         localStorage.removeItem("username");
+        localStorage.removeItem("orders");
         message.success("logout successful")
         navigate("/");
         setLogoutSuccess(true);

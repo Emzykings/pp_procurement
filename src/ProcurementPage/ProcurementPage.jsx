@@ -136,11 +136,11 @@ export default function ProcurementPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const storedOrders = localStorage.getItem("orders");
-        if (storedOrders) {
-          setOrders(JSON.parse(storedOrders));
-          setOpen(false);
-        } else {
+        // const storedOrders = localStorage.getItem("orders");
+        // if (storedOrders) {
+        //   setOrders(JSON.parse(storedOrders));
+        //   setOpen(false);
+        // } else {
           const storedData = localStorage.getItem("userData");
           if (!storedData) {
             throw new Error("User data not found in localStorage");
@@ -164,8 +164,8 @@ export default function ProcurementPage() {
           setOrders(data);
           setOpen(false);
 
-          localStorage.setItem("orders", JSON.stringify(data));
-        }
+          // localStorage.setItem("orders", JSON.stringify(data));
+        // }
       } catch (error) {
         message.error(error);
       }
@@ -194,11 +194,11 @@ export default function ProcurementPage() {
 
   const determineBatch = (createdAt) => {
     const hours = parseInt(createdAt.split(':')[0]);
-    if (hours >= 17 && hours < 22) {
+    if (hours >= 16 && hours < 22) {
       return 'Batch A';
-    } else if (hours >= 0 && hours < 6) {
+    } else if (hours >= 0 && hours < 5) {
       return 'Batch B';
-    } else if (hours >= 7 && hours < 14) {
+    } else if (hours >= 6 && hours < 14) {
       return 'Batch C';
     } else {
       return 'Unknown Batch';
