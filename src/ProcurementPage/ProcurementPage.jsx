@@ -40,7 +40,7 @@ const columns = [
   },
   { id: "created_at", label: "Date", minWidth: 100, align: "center" },
   { id: "action", label: "Action", minWidth: 170, align: "right" },
-  { id: "uploaded", label: "Updated", minWidth: 100, align: "center" },
+  // { id: "uploaded", label: "Updated", minWidth: 100, align: "center" },
 ];
 
 export default function ProcurementPage() {
@@ -141,30 +141,30 @@ export default function ProcurementPage() {
         //   setOrders(JSON.parse(storedOrders));
         //   setOpen(false);
         // } else {
-          const storedData = localStorage.getItem("userData");
-          if (!storedData) {
-            throw new Error("User data not found in localStorage");
+        const storedData = localStorage.getItem("userData");
+        if (!storedData) {
+          throw new Error("User data not found in localStorage");
+        }
+        const { token } = JSON.parse(storedData);
+
+        const response = await fetch(
+          "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/my-orders/",
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
           }
-          const { token } = JSON.parse(storedData);
+        );
 
-          const response = await fetch(
-            "https://spiritual-anglerfish-sodbridge.koyeb.app/api/orders/my-orders/",
-            {
-              headers: {
-                Authorization: `Token ${token}`,
-              },
-            }
-          );
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
 
-          if (!response.ok) {
-            throw new Error("Failed to fetch orders");
-          }
+        const data = await response.json();
+        setOrders(data);
+        setOpen(false);
 
-          const data = await response.json();
-          setOrders(data);
-          setOpen(false);
-
-          // localStorage.setItem("orders", JSON.stringify(data));
+        // localStorage.setItem("orders", JSON.stringify(data));
         // }
       } catch (error) {
         message.error(error);
@@ -193,15 +193,15 @@ export default function ProcurementPage() {
   };
 
   const determineBatch = (createdAt) => {
-    const hours = parseInt(createdAt.split(':')[0]);
+    const hours = parseInt(createdAt.split(":")[0]);
     if (hours >= 16 && hours < 22) {
-      return 'Batch A';
+      return "Batch A";
     } else if (hours >= 0 && hours < 5) {
-      return 'Batch B';
+      return "Batch B";
     } else if (hours >= 6 && hours < 14) {
-      return 'Batch C';
+      return "Batch C";
     } else {
-      return 'Unknown Batch';
+      return "Unknown Batch";
     }
   };
 
@@ -284,9 +284,10 @@ export default function ProcurementPage() {
                               <Button onClick={() => handleOpen(row.id)}>
                                 <MoreVertIcon />
                               </Button>
-                            ) : column.id === "uploaded" ? (
-                              <span>{row.uploaded ? "✔️" : "❌"}</span>
-                            ) : column.id === "created_at" ? (
+                            ) : // column.id === "uploaded" ? (
+                            //   // <span>{row.uploaded ? "✔️" : "❌"}</span>
+                            // ) :
+                            column.id === "created_at" ? (
                               <span>
                                 {row.created_at}{" "}
                                 {determineBatch(row.created_at.split(" ")[1])}
